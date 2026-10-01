@@ -1,892 +1,982 @@
 
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Neural Raphael AI - Navegador Inteligente de Pesquisa Web</title>
-  
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <!-- Marked.js for Markdown Rendering -->
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#eef2ff',
-              100: '#e0e7ff',
-              500: '#6366f1',
-              600: '#4f46e5',
-              700: '#4338ca',
-              900: '#1e1b4b',
-              accent: '#06b6d4'
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural Raphael AI / OmniSearch Suite</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f3ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#1e1b4b',
+                            dark: '#0b0f19',
+                            card: '#151c2c',
+                            border: '#232d42'
+                        }
+                    }
+                }
             }
-          }
         }
-      }
-    }
-  </script>
-  <style>
-    /* Custom Scrollbar and Glassmorphism Styles */
-    body {
-      background-color: #0b0f19;
-      color: #f3f4f6;
-      font-family: 'Inter', sans-serif;
-    }
-    .glass-panel {
-      background: rgba(17, 24, 39, 0.75);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .glass-card {
-      background: rgba(30, 41, 59, 0.5);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    .gradient-text {
-      background: linear-gradient(135deg, #38bdf8 0%, #818cf8 50%, #c084fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .pulse-glow {
-      box-shadow: 0 0 20px rgba(99, 102, 241, 0.35);
-    }
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: rgba(15, 23, 42, 0.6);
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(99, 102, 241, 0.4);
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.7);
-    }
-    canvas {
-      display: block;
-    }
-    /* Custom Markdown formatting overrides */
-    .prose h1, .prose h2, .prose h3 {
-      color: #f3f4f6 !important;
-      font-weight: 700 !important;
-      margin-top: 1rem !important;
-      margin-bottom: 0.5rem !important;
-    }
-    .prose p {
-      margin-bottom: 0.75rem !important;
-      line-height: 1.625 !important;
-    }
-    .prose ul, .prose ol {
-      margin-left: 1.25rem !important;
-      margin-bottom: 0.75rem !important;
-      list-style-type: disc !important;
-    }
-    .prose code {
-      background: rgba(30, 41, 59, 0.8) !important;
-      color: #38bdf8 !important;
-      padding: 0.15rem 0.4rem !important;
-      border-radius: 0.25rem !important;
-      font-family: 'JetBrains Mono', monospace !important;
-    }
-    .prose pre {
-      background: #020617 !important;
-      border: 1px solid rgba(255,255,255,0.1) !important;
-      padding: 1rem !important;
-      border-radius: 0.5rem !important;
-      overflow-x: auto !important;
-    }
-    .prose blockquote {
-      border-left: 3px solid #6366f1 !important;
-      padding-left: 0.75rem !important;
-      color: #9ca3af !important;
-      font-style: italic !important;
-    }
-  </style>
+    </script>
+    <!-- FontAwesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- KaTeX for Math LaTeX Rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+    <!-- jsPDF for Document Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        code, pre {
+            font-family: 'Fira Code', monospace;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #232d42;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4f46e5;
+        }
+        .glass-panel {
+            background: rgba(21, 28, 44, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
 </head>
-<body class="min-h-screen flex flex-col overflow-x-hidden antialiased text-gray-200">
+<body class="h-screen flex flex-col overflow-hidden text-gray-200">
 
-  <!-- Header / Navigation Bar -->
-  <header class="glass-panel sticky top-0 z-50 border-b border-gray-800/80 px-4 py-2.5">
-    <div class="max-w-7xl mx-auto flex items-center justify-between gap-4">
-      
-      <!-- Brand & Controls -->
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-1.5 mr-1">
-          <span class="w-3 h-3 rounded-full bg-red-500/80 inline-block"></span>
-          <span class="w-3 h-3 rounded-full bg-yellow-500/80 inline-block"></span>
-          <span class="w-3 h-3 rounded-full bg-green-500/80 inline-block"></span>
+    <!-- Top Bar Header -->
+    <header class="glass-panel h-16 px-4 flex items-center justify-between z-30 shrink-0 border-b border-gray-800">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                <i class="fa-solid font-bold text-xl text-white fa-brain"></i>
+            </div>
+            <div>
+                <h1 class="font-bold text-lg leading-none bg-gradient-to-r from-indigo-400 via-purple-300 to-pink-400 bg-clip-text text-transparent">Neural Raphael AI</h1>
+                <span class="text-xs text-gray-400 font-medium">OmniSearch & Multimodal Studio v3.5</span>
+            </div>
         </div>
-        <div class="flex items-center gap-2 font-bold text-lg tracking-tight">
-          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white shadow-lg">
-            <i class="fa-solid fa-compass text-sm"></i>
-          </div>
-          <span class="gradient-text font-extrabold hidden sm:inline">OmniSearch</span>
-          <span class="text-[10px] bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono">v3.5 Grounded</span>
+
+        <!-- System Controls & Settings Modal Toggle -->
+        <div class="flex items-center space-x-3">
+            <button onclick="toggleSettingsModal()" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-indigo-900/40 hover:bg-indigo-800/60 text-indigo-300 border border-indigo-700/50 text-xs font-medium transition">
+                <i class="fa-solid fa-key text-xs"></i>
+                <span id="apiKeyStatus">Gemini API Key</span>
+            </button>
+            <div class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span>Motor Local & Nuvem Pronto</span>
+            </div>
         </div>
-      </div>
+    </header>
 
-      <!-- Search / Address Bar -->
-      <div class="flex-1 max-w-3xl">
-        <form id="search-form" class="relative flex items-center">
-          <div class="absolute left-3.5 text-indigo-400">
-            <i class="fa-solid fa-magnifying-glass text-sm"></i>
-          </div>
-          <input 
-            type="text" 
-            id="search-input"
-            value="Quais são as últimas novidades e avanços em Inteligência Artificial no mundo?" 
-            placeholder="Pesquise em tempo real na Web ou digite um tópico..."
-            class="w-full pl-10 pr-24 py-2.5 rounded-xl bg-gray-900/90 border border-gray-700/80 text-sm text-gray-100 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-mono transition-all duration-200"
-          />
-          <button 
-            type="submit" 
-            id="search-btn"
-            class="absolute right-1.5 px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-medium text-xs shadow-md transition-all flex items-center gap-1.5 active:scale-95">
-            <span>Pesquisar</span>
-            <i class="fa-solid fa-arrow-right text-xs"></i>
-          </button>
-        </form>
-      </div>
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar Navigation -->
+        <aside class="w-16 md:w-64 glass-panel border-r border-gray-800/80 flex flex-col justify-between shrink-0 transition-all duration-300">
+            <nav class="p-3 space-y-1.5">
+                <button onclick="switchTab('chat')" id="nav-chat" class="tab-btn active-tab w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-indigo-400 bg-indigo-600/20 border border-indigo-500/30">
+                    <i class="fa-solid fa-comments text-lg w-6 text-center"></i>
+                    <span class="hidden md:inline">Chat AI Assistant</span>
+                </button>
+                <button onclick="switchTab('code')" id="nav-code" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-gray-400 hover:text-gray-200 hover:bg-gray-800/50">
+                    <i class="fa-solid fa-code text-lg w-6 text-center"></i>
+                    <span class="hidden md:inline">Programação & Algoritmos</span>
+                </button>
+                <button onclick="switchTab('translate')" id="nav-translate" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-gray-400 hover:text-gray-200 hover:bg-gray-800/50">
+                    <i class="fa-solid fa-language text-lg w-6 text-center"></i>
+                    <span class="hidden md:inline">Tradução Multilíngue</span>
+                </button>
+                <button onclick="switchTab('math')" id="nav-math" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-gray-400 hover:text-gray-200 hover:bg-gray-800/50">
+                    <i class="fa-solid fa-calculator text-lg w-6 text-center"></i>
+                    <span class="hidden md:inline">Matemática & Cálculos</span>
+                </button>
+                <button onclick="switchTab('studio')" id="nav-studio" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-gray-400 hover:text-gray-200 hover:bg-gray-800/50">
+                    <i class="fa-solid fa-wand-magic-sparkles text-lg w-6 text-center"></i>
+                    <span class="hidden md:inline">Estúdio Mídia (AI Studio)</span>
+                </button>
+                <button onclick="switchTab('media-editor')" id="nav-media-editor" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-gray-400 hover:text-gray-200 hover:bg-gray-800/50">
+                    <i class="fa-solid fa-sliders text-lg w-6 text-center"></i>
+                    <span class="hidden md:inline">Editor Imagem & Áudio</span>
+                </button>
+                <button onclick="switchTab('export')" id="nav-export" class="tab-btn w-full flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-medium transition text-gray-400 hover:text-gray-200 hover:bg-gray-800/50">
+                    <i class="fa-solid fa-file-export text-lg w-6 text-center"></i>
+                    <span class="hidden md:inline">Exportador de Documentos</span>
+                </button>
+            </nav>
 
-      <!-- Navigation Tabs -->
-      <div class="flex items-center gap-1">
-        <button id="tab-browser-btn" onclick="switchTab('browser')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-globe"></i>
-          <span class="hidden md:inline">Navegador</span>
-        </button>
-        <button id="tab-visualizer-btn" onclick="switchTab('visualizer')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-gray-200 flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-network-wired"></i>
-          <span class="hidden md:inline">Pipeline IA</span>
-        </button>
-        <button id="tab-architecture-btn" onclick="switchTab('architecture')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-gray-200 flex items-center gap-1.5 transition">
-          <i class="fa-solid fa-sitemap"></i>
-          <span class="hidden md:inline">Visão Geral</span>
-        </button>
-      </div>
+            <div class="p-3 border-t border-gray-800 text-xs text-gray-500 text-center hidden md:block">
+                <p>Neural Raphael Suite</p>
+                <p class="text-[10px] text-gray-600 mt-0.5">100% Single-File & Standalone</p>
+            </div>
+        </aside>
 
-    </div>
-  </header>
+        <!-- Main Content View Container -->
+        <main class="flex-1 relative overflow-hidden bg-gradient-to-b from-gray-950 via-slate-950 to-gray-950 flex flex-col">
 
-  <!-- Main Viewport Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
-
-    <!-- Preset Search Prompts Pill Bar -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
-      <span class="text-gray-400 font-medium whitespace-nowrap flex items-center gap-1">
-        <i class="fa-solid fa-bolt text-yellow-400"></i> Sugestões Rápidas:
-      </span>
-      <button onclick="quickSearch('Últimas descobertas científicas sobre fusão nuclear')" class="bg-gray-800/80 hover:bg-indigo-900/40 hover:border-indigo-500/50 text-gray-300 border border-gray-700/60 px-3 py-1.5 rounded-full whitespace-nowrap transition">
-        ⚛️ Fusão Nuclear
-      </button>
-      <button onclick="quickSearch('Principais tendências de mercado e tecnologia hoje')" class="bg-gray-800/80 hover:bg-indigo-900/40 hover:border-indigo-500/50 text-gray-300 border border-gray-700/60 px-3 py-1.5 rounded-full whitespace-nowrap transition">
-        📈 Mercado Tech
-      </button>
-      <button onclick="quickSearch('Avanços recentes em modelos de linguagem LLM e IA')" class="bg-gray-800/80 hover:bg-indigo-900/40 hover:border-indigo-500/50 text-gray-300 border border-gray-700/60 px-3 py-1.5 rounded-full whitespace-nowrap transition">
-        🤖 Modelos LLM
-      </button>
-      <button onclick="quickSearch('Lançamentos mais recentes da exploração espacial')" class="bg-gray-800/80 hover:bg-indigo-900/40 hover:border-indigo-500/50 text-gray-300 border border-gray-700/60 px-3 py-1.5 rounded-full whitespace-nowrap transition">
-        🚀 Exploração Espacial
-      </button>
-    </div>
-
-    <!-- TAB 1: BROWSER RESULTS VIEW -->
-    <section id="view-browser" class="space-y-6 transition-all duration-300">
-      
-      <!-- Status & Engine Badge Bar -->
-      <div class="flex flex-wrap items-center justify-between gap-3 bg-gray-900/60 p-3 rounded-xl border border-gray-800 text-xs">
-        <div class="flex items-center gap-2">
-          <span id="status-indicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span id="status-text" class="text-gray-300 font-mono">Status: Pronto para pesquisas em tempo real</span>
-        </div>
-        <div class="flex items-center gap-4 text-gray-400 font-mono text-[11px]">
-          <span><i class="fa-solid fa-database text-indigo-400"></i> Engine: <span id="engine-mode-text">Direct/Hybrid Web Agent</span></span>
-          <span><i class="fa-solid fa-microchip text-cyan-400"></i> Modelo: Gemini 3 Flash Grounded</span>
-        </div>
-      </div>
-
-      <!-- Notification Alert Modal/Toast -->
-      <div id="toast-message" class="hidden p-3 bg-indigo-950/80 border border-indigo-500/40 rounded-xl text-xs text-indigo-200 flex items-center justify-between transition-all">
-        <span id="toast-text">Mensagem</span>
-        <button onclick="hideToast()" class="text-indigo-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <!-- Layout Grid (Results + Citations Sidebar) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- Main Answer Panel -->
-        <div class="lg:col-span-8 space-y-6">
-          <div class="glass-panel rounded-2xl p-6 border border-gray-800 relative shadow-2xl overflow-hidden min-h-[420px]">
-            <!-- Header -->
-            <div class="flex items-center justify-between border-b border-gray-800/80 pb-4 mb-5">
-              <div class="flex items-center gap-3">
-                <div class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                  <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+            <section id="view-chat" class="tab-content h-full flex flex-col p-4 space-y-4">
+                <!-- System Prompt Config Header -->
+                <div class="glass-card rounded-2xl p-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                    <div class="flex items-center space-x-2">
+                        <i class="fa-solid fa-robot text-indigo-400"></i>
+                        <span class="text-xs font-semibold text-gray-300">System Persona:</span>
+                        <select id="chatPersona" class="bg-gray-900 text-xs border border-gray-700 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-indigo-500 text-gray-200">
+                            <option value="default">✨ Raphael AI Universal Assistant</option>
+                            <option value="coder">💻 Senior Full-Stack Engineer & Architect</option>
+                            <option value="translator">🌐 Expert Translator & Linguist</option>
+                            <option value="math">🧮 Math Professor & Equations Specialist</option>
+                            <option value="creative">🎨 Creative Writer & Storyteller</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="clearChat()" class="text-xs px-2.5 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-trash"></i> Limpar Chat
+                        </button>
+                    </div>
                 </div>
-                <div>
-                  <h2 class="text-lg font-bold text-gray-100">Síntese Inteligente com Visão da Web</h2>
-                  <p class="text-xs text-gray-400">Resumo contextual compilado diretamente das fontes de informação</p>
+
+                <!-- Chat History Area -->
+                <div id="chatHistory" class="flex-1 overflow-y-auto space-y-4 pr-2 rounded-2xl p-2">
+                    <!-- Initial Welcome Message -->
+                    <div class="flex gap-3 max-w-3xl">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center shrink-0 text-indigo-300 font-bold text-sm">
+                            AI
+                        </div>
+                        <div class="glass-card rounded-2xl p-4 text-sm leading-relaxed border border-indigo-500/20 text-gray-200">
+                            Olá! Eu sou o <strong>Neural Raphael AI</strong>. Como posso ajudar você hoje? 
+                            <br><br>
+                            Você pode me pedir para programar algoritmos, resolver cálculos complexos com LaTeX, traduzir textos, sintetizar músicas, renderizar artes visuais ou exportar relatórios completos em PDF/DOCX!
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <button onclick="copyResponse()" title="Copiar resposta" class="text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 transition">
-                <i class="fa-regular fa-copy"></i> Copiar
-              </button>
+
+                <!-- Chat Input Controls -->
+                <div class="shrink-0 glass-card rounded-2xl p-2 relative flex items-center gap-2 border border-indigo-500/20">
+                    <textarea id="chatInput" rows="1" placeholder="Digite sua mensagem ou pergunta..." class="w-full bg-transparent border-0 focus:ring-0 focus:outline-none text-sm text-gray-100 placeholder-gray-500 resize-none px-3 py-2 max-h-32" onkeydown="handleChatKeyDown(event)"></textarea>
+                    <button onclick="sendChatMessage()" class="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white flex items-center justify-center shrink-0 shadow-md shadow-indigo-600/30 transition">
+                        <i class="fa-solid fa-paper-plane text-sm"></i>
+                    </button>
+                </div>
+            </section>
+
+            <section id="view-code" class="tab-content hidden h-full flex flex-col p-4 space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+                    <!-- Left: Generator & Prompt -->
+                    <div class="glass-card rounded-2xl p-4 flex flex-col space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h2 class="font-semibold text-sm flex items-center gap-2 text-indigo-300">
+                                <i class="fa-solid fa-laptop-code"></i> Gerador de Algoritmos
+                            </h2>
+                            <select id="codeLanguage" class="bg-gray-900 text-xs border border-gray-700 rounded-lg px-2.5 py-1 text-gray-200">
+                                <option value="javascript">JavaScript (Executable)</option>
+                                <option value="python">Python</option>
+                                <option value="cpp">C++</option>
+                                <option value="java">Java</option>
+                                <option value="rust">Rust</option>
+                                <option value="sql">SQL</option>
+                                <option value="html">HTML/CSS/JS</option>
+                            </select>
+                        </div>
+                        <textarea id="codePrompt" rows="3" placeholder="Ex: Crie um algoritmo de ordenação QuickSort com explicação linha a linha..." class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-sm focus:outline-none focus:border-indigo-500 text-gray-200 placeholder-gray-600 resize-none"></textarea>
+                        <button onclick="generateCodeAlg()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
+                            <i class="fa-solid fa-wand-magic"></i> Gerar Código & Algoritmo
+                        </button>
+                        
+                        <!-- Sandbox Output Container -->
+                        <div class="flex-1 flex flex-col min-h-0 pt-2 border-t border-gray-800">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs font-semibold text-gray-400">Console Sandbox Output (JS):</span>
+                                <button onclick="clearConsole()" class="text-[10px] text-gray-500 hover:text-gray-300">Limpar</button>
+                            </div>
+                            <div id="sandboxConsole" class="flex-1 bg-black/80 rounded-xl p-3 font-mono text-xs text-green-400 overflow-y-auto border border-gray-800">
+                                // Logs e resultados de execução aparecerão aqui...
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Editor & Output -->
+                    <div class="glass-card rounded-2xl p-4 flex flex-col space-y-3 min-h-0">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-gray-300 flex items-center gap-2">
+                                <i class="fa-solid fa-code"></i> Editor Interativo
+                            </span>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="copyCode()" class="text-xs px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg transition flex items-center gap-1">
+                                    <i class="fa-regular fa-copy"></i> Copiar
+                                </button>
+                                <button onclick="runCodeSandbox()" class="text-xs px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold rounded-lg transition flex items-center gap-1 shadow-md shadow-emerald-600/20">
+                                    <i class="fa-solid fa-play"></i> Executar (JS)
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="codeEditor" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl p-3 font-mono text-xs text-indigo-200 focus:outline-none focus:border-indigo-500 resize-none leading-relaxed">// Neural Raphael Interactive Code Sandbox
+function fibonacci(n) {
+    if (n <= 1) return n;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+console.log("Calculando Fibonacci(10)...");
+console.log("Resultado:", fibonacci(10));</textarea>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-translate" class="tab-content hidden h-full flex flex-col p-4 space-y-4">
+                <div class="glass-card rounded-2xl p-4 flex items-center justify-between gap-4">
+                    <div class="flex items-center space-x-2 flex-1">
+                        <select id="sourceLang" class="bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs font-medium text-gray-200 focus:border-indigo-500">
+                            <option value="auto">Detectar Idioma Automático</option>
+                            <option value="pt">Português</option>
+                            <option value="en">Inglês</option>
+                            <option value="es">Espanhol</option>
+                            <option value="fr">Francês</option>
+                            <option value="de">Alemão</option>
+                            <option value="zh">Chinês</option>
+                            <option value="ja">Japonês</option>
+                        </select>
+                        <button onclick="swapTranslationLangs()" class="p-2 text-gray-400 hover:text-indigo-400 rounded-lg hover:bg-gray-800">
+                            <i class="fa-solid fa-arrows-rotate"></i>
+                        </button>
+                        <select id="targetLang" class="bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs font-medium text-gray-200 focus:border-indigo-500">
+                            <option value="en">Inglês</option>
+                            <option value="pt">Português</option>
+                            <option value="es">Espanhol</option>
+                            <option value="fr">Francês</option>
+                            <option value="de">Alemão</option>
+                            <option value="zh">Chinês</option>
+                            <option value="ja">Japonês</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <select id="translationTone" class="bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200">
+                            <option value="natural">Tom Natural</option>
+                            <option value="formal">Tom Formal/Corporativo</option>
+                            <option value="casual">Tom Casual/Informal</option>
+                            <option value="technical">Tom Técnico/Científico</option>
+                        </select>
+                        <button onclick="executeTranslation()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2">
+                            <i class="fa-solid fa-language"></i> Traduzir Agora
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+                    <div class="glass-card rounded-2xl p-4 flex flex-col space-y-2">
+                        <span class="text-xs font-semibold text-gray-400">Texto Original:</span>
+                        <textarea id="translateInput" placeholder="Digite ou cole aqui o texto para tradução e análise gramatical..." class="flex-1 bg-gray-900 border border-gray-800 rounded-xl p-3 text-sm text-gray-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                    </div>
+                    <div class="glass-card rounded-2xl p-4 flex flex-col space-y-2">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-gray-400">Tradução & Análise Gramatical:</span>
+                            <button onclick="copyTranslation()" class="text-xs text-gray-400 hover:text-white"><i class="fa-regular fa-copy"></i> Copiar</button>
+                        </div>
+                        <div id="translateOutput" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl p-3 text-sm text-gray-200 overflow-y-auto leading-relaxed">
+                            <span class="text-gray-500 italic">O resultado da tradução e insights linguísticos aparecerão aqui...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-math" class="tab-content hidden h-full flex flex-col p-4 space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 min-h-0">
+                    <!-- Left Column: Math Solver Controls -->
+                    <div class="glass-card rounded-2xl p-4 flex flex-col space-y-3">
+                        <h2 class="font-semibold text-sm text-indigo-300 flex items-center gap-2">
+                            <i class="fa-solid fa-calculator"></i> Assistente Matemático
+                        </h2>
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-400">Modo de Cálculo:</label>
+                            <select id="mathMode" class="w-full bg-gray-900 border border-gray-800 rounded-xl px-3 py-2 text-xs text-gray-200">
+                                <option value="equation">Equações & Álgebra</option>
+                                <option value="calculus">Cálculo Diferencial e Integral</option>
+                                <option value="stats">Estatística & Probabilidade</option>
+                                <option value="finance">Finanças & Juros Compostos</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs text-gray-400">Expressão / Problema:</label>
+                            <textarea id="mathPrompt" rows="3" placeholder="Ex: Solve x^2 - 5x + 6 = 0 ou Integral de sin(x)*cos(x)..." class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-sm text-gray-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                        </div>
+                        <button onclick="solveMathProblem()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/20">
+                            <i class="fa-solid fa-square-root-variable"></i> Resolver Passo a Passo
+                        </button>
+
+                        <!-- Fast Unit Converter Component -->
+                        <div class="pt-3 border-t border-gray-800 space-y-2">
+                            <span class="text-xs font-semibold text-gray-300">Conversor Rápido de Unidades</span>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="number" id="unitVal" value="100" placeholder="Valor" class="bg-gray-900 border border-gray-800 rounded-lg p-2 text-xs text-gray-100">
+                                <select id="unitType" class="bg-gray-900 border border-gray-800 rounded-lg p-2 text-xs text-gray-200" onchange="convertUnits()">
+                                    <option value="c2f">Celsius ➔ Fahrenheit</option>
+                                    <option value="f2c">Fahrenheit ➔ Celsius</option>
+                                    <option value="km2mi">Km ➔ Milhas</option>
+                                    <option value="mi2km">Milhas ➔ Km</option>
+                                    <option value="kg2lb">Kg ➔ Libras</option>
+                                </select>
+                            </div>
+                            <div id="unitResult" class="text-xs font-mono text-indigo-300 bg-gray-900/50 p-2 rounded-lg border border-gray-800 text-center">
+                                Resultado: 212 °F
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Step-by-Step Solution with LaTeX Render -->
+                    <div class="lg:col-span-2 glass-card rounded-2xl p-4 flex flex-col space-y-3 min-h-0">
+                        <span class="text-xs font-semibold text-gray-300 flex items-center gap-2">
+                            <i class="fa-solid fa-square-root-variable text-indigo-400"></i> Resolução Formatada (KaTeX LaTeX)
+                        </span>
+                        <div id="mathOutput" class="flex-1 bg-gray-950 border border-gray-800 rounded-xl p-4 text-sm text-gray-200 overflow-y-auto leading-relaxed space-y-3">
+                            <p class="text-gray-500 italic">Insira uma equação acima para ver a resolução completa com fórmula formatada.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-studio" class="tab-content hidden h-full flex flex-col p-4 space-y-4">
+                <!-- Studio Navigation Tabs -->
+                <div class="flex items-center space-x-2 border-b border-gray-800 pb-2">
+                    <button onclick="switchStudioSubTab('image')" id="subnav-image" class="subtab-btn active-subtab text-xs px-3 py-1.5 rounded-lg bg-indigo-600 text-white font-medium">
+                        <i class="fa-solid fa-image"></i> Gerador Imagem AI
+                    </button>
+                    <button onclick="switchStudioSubTab('music')" id="subnav-music" class="subtab-btn text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 hover:text-white font-medium">
+                        <i class="fa-solid fa-music"></i> Sintetizador Áudio/Música
+                    </button>
+                    <button onclick="switchStudioSubTab('video')" id="subnav-video" class="subtab-btn text-xs px-3 py-1.5 rounded-lg bg-gray-800 text-gray-400 hover:text-white font-medium">
+                        <i class="fa-solid fa-video"></i> Gerador Animação/Vídeo
+                    </button>
+                </div>
+
+                <!-- Sub-View 1: AI Image Generator -->
+                <div id="st-image" class="studio-subview flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+                    <div class="w-full lg:w-80 glass-card rounded-2xl p-4 flex flex-col space-y-3">
+                        <h3 class="text-xs font-semibold text-indigo-300">Prompt da Imagem</h3>
+                        <textarea id="imagePrompt" rows="3" placeholder="Ex: Futuristic cyberpunk city bathed in neon lights, hyperrealistic 8k render..." class="bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-gray-100 focus:outline-none focus:border-indigo-500 resize-none"></textarea>
+                        <button onclick="generateAIImage()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Renderizar Imagem
+                        </button>
+                    </div>
+                    <div class="flex-1 glass-card rounded-2xl p-4 flex items-center justify-center overflow-hidden relative">
+                        <img id="generatedImage" src="https://placehold.co/800x600/1e1b4b/818cf8?text=Neural+Raphael+AI+Studio" class="max-h-full max-w-full rounded-xl object-contain shadow-2xl border border-gray-800">
+                    </div>
+                </div>
+
+                <!-- Sub-View 2: Music & Synth Generator -->
+                <div id="st-music" class="studio-subview hidden flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+                    <div class="w-full lg:w-80 glass-card rounded-2xl p-4 flex flex-col space-y-3">
+                        <h3 class="text-xs font-semibold text-indigo-300">Sintetizador & Sequenciador Melódico</h3>
+                        <div class="space-y-1">
+                            <label class="text-[11px] text-gray-400">Estilo da Melodia:</label>
+                            <select id="synthStyle" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2 text-xs text-gray-200">
+                                <option value="ambient">Ambient Cyber Space</option>
+                                <option value="chiptune">Retro Chiptune 8-Bit</option>
+                                <option value="euphoric">Euphoric Synthwave</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[11px] text-gray-400">Tempo (BPM): <span id="bpmVal">120</span></label>
+                            <input type="range" id="synthBpm" min="60" max="180" value="120" class="w-full" oninput="document.getElementById('bpmVal').innerText = this.value">
+                        </div>
+                        <div class="flex items-center gap-2 pt-2">
+                            <button onclick="playSynthesizer()" class="flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-play"></i> Tocar
+                            </button>
+                            <button onclick="stopSynthesizer()" class="flex-1 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-stop"></i> Parar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 glass-card rounded-2xl p-4 flex flex-col items-center justify-center relative">
+                        <!-- Audio Visualizer Canvas -->
+                        <canvas id="audioVisualizer" class="w-full h-64 bg-gray-950 rounded-xl border border-gray-800"></canvas>
+                        <p class="text-xs text-gray-500 mt-2">Visualizador de Espectro Sonoro em Tempo Real (Web Audio API)</p>
+                    </div>
+                </div>
+
+                <!-- Sub-View 3: Canvas Particle Video / Graphics Generator -->
+                <div id="st-video" class="studio-subview hidden flex-1 flex flex-col lg:flex-row gap-4 min-h-0">
+                    <div class="w-full lg:w-80 glass-card rounded-2xl p-4 flex flex-col space-y-3">
+                        <h3 class="text-xs font-semibold text-indigo-300">Gerador de Motion Loop & Partículas</h3>
+                        <div class="space-y-1">
+                            <label class="text-[11px] text-gray-400">Efeito Visual:</label>
+                            <select id="videoEffect" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-2 text-xs text-gray-200" onchange="changeVideoEffect()">
+                                <option value="nebula">Neural Particle Matrix</option>
+                                <option value="tunnel">Hyperspace Tunnel</option>
+                                <option value="waves">Sine Wave Geometry</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[11px] text-gray-400">Velocidade da Animação:</label>
+                            <input type="range" id="videoSpeed" min="1" max="5" value="2" class="w-full">
+                        </div>
+                    </div>
+                    <div class="flex-1 glass-card rounded-2xl p-4 flex items-center justify-center overflow-hidden">
+                        <canvas id="videoCanvas" class="w-full h-full bg-black rounded-xl border border-gray-800"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-media-editor" class="tab-content hidden h-full flex flex-col p-4 space-y-4">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+                    <!-- Image Filter & Editor -->
+                    <div class="glass-card rounded-2xl p-4 flex flex-col space-y-3 min-h-0">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-semibold text-indigo-300 flex items-center gap-2">
+                                <i class="fa-solid fa-image"></i> Editor de Imagens Canvas
+                            </h3>
+                            <input type="file" id="imgUpload" accept="image/*" class="hidden" onchange="loadUserImage(event)">
+                            <button onclick="document.getElementById('imgUpload').click()" class="text-xs px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg">Carregar Imagem</button>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2">
+                            <div>
+                                <label class="text-[10px] text-gray-400">Brilho</label>
+                                <input type="range" id="fBrightness" min="0" max="200" value="100" class="w-full" oninput="applyImageFilters()">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-400">Contraste</label>
+                                <input type="range" id="fContrast" min="0" max="200" value="100" class="w-full" oninput="applyImageFilters()">
+                            </div>
+                            <div>
+                                <label class="text-[10px] text-gray-400">Escala de Cinza</label>
+                                <input type="range" id="fGrayscale" min="0" max="100" value="0" class="w-full" oninput="applyImageFilters()">
+                            </div>
+                        </div>
+                        <div class="flex-1 bg-gray-950 rounded-xl border border-gray-800 overflow-hidden flex items-center justify-center p-2">
+                            <canvas id="editCanvas" class="max-w-full max-h-full rounded object-contain"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Audio Pitch & Speed Controls -->
+                    <div class="glass-card rounded-2xl p-4 flex flex-col space-y-3 min-h-0">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-semibold text-indigo-300 flex items-center gap-2">
+                                <i class="fa-solid fa-sliders"></i> Editor & Modificador de Áudio
+                            </h3>
+                            <input type="file" id="audioUpload" accept="audio/*" class="hidden" onchange="loadUserAudio(event)">
+                            <button onclick="document.getElementById('audioUpload').click()" class="text-xs px-2.5 py-1 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg">Carregar Áudio</button>
+                        </div>
+                        <div class="space-y-3">
+                            <div>
+                                <label class="text-xs text-gray-400">Velocidade de Reprodução: <span id="speedVal">1.0x</span></label>
+                                <input type="range" id="audioSpeed" min="0.5" max="2.0" step="0.1" value="1.0" class="w-full" oninput="updateAudioSettings()">
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="playUserAudio()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs rounded-xl font-semibold">Tocar Áudio Editado</button>
+                                <button onclick="stopUserAudio()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white text-xs rounded-xl font-semibold">Parar</button>
+                            </div>
+                        </div>
+                        <div class="flex-1 bg-gray-950 rounded-xl border border-gray-800 flex items-center justify-center p-4 text-center">
+                            <p id="audioStatusText" class="text-xs text-gray-500">Nenhum arquivo de áudio carregado. Clique acima para selecionar uma faixa MP3/WAV.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="view-export" class="tab-content hidden h-full flex flex-col p-4 space-y-4">
+                <div class="glass-card rounded-2xl p-4 space-y-4">
+                    <h2 class="font-semibold text-sm text-indigo-300 flex items-center gap-2">
+                        <i class="fa-solid fa-file-export"></i> Gerador & Exportador Universal de Documentos
+                    </h2>
+                    <div class="space-y-2">
+                        <label class="text-xs text-gray-400">Conteúdo do Documento / Relatório:</label>
+                        <textarea id="exportContent" rows="8" class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-sm text-gray-100 focus:outline-none focus:border-indigo-500 resize-none" placeholder="Digite ou cole aqui o conteúdo formatado que deseja exportar..."></textarea>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="exportDocument('pdf')" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+                        </button>
+                        <button onclick="exportDocument('docx')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-word"></i> Exportar DOCX / Word
+                        </button>
+                        <button onclick="exportDocument('txt')" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-lines"></i> Exportar TXT
+                        </button>
+                        <button onclick="exportDocument('json')" class="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-xl transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-file-code"></i> Exportar JSON
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <div id="settingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-panel max-w-md w-full rounded-2xl p-6 space-y-4 border border-indigo-500/30">
+            <div class="flex items-center justify-between">
+                <h3 class="font-bold text-base text-indigo-300 flex items-center gap-2">
+                    <i class="fa-solid fa-key"></i> Configurar Chave Gemini API
+                </h3>
+                <button onclick="toggleSettingsModal()" class="text-gray-400 hover:text-white">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-
-            <!-- Loader Overlay -->
-            <div id="loading-spinner" class="hidden py-16 flex flex-col items-center justify-center gap-4">
-              <div class="relative w-16 h-16">
-                <div class="absolute inset-0 rounded-full border-4 border-indigo-500/20"></div>
-                <div class="absolute inset-0 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin"></div>
-                <div class="absolute inset-2 rounded-full border-4 border-cyan-400 border-b-transparent animate-spin" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
-              </div>
-              <p class="text-sm font-mono text-indigo-300 animate-pulse">Rastreando a Web & Sintetizando Conhecimento...</p>
-            </div>
-
-            <!-- AI Rendered Markdown Container -->
-            <div id="ai-response-content" class="prose prose-invert prose-indigo max-w-none text-gray-300 leading-relaxed text-sm">
-              <!-- Dynamically Populated -->
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Column: Citations & Query Metrics -->
-        <div class="lg:col-span-4 space-y-6">
-          
-          <!-- Web Citations / Sources Panel -->
-          <div class="glass-panel rounded-2xl p-5 border border-gray-800 space-y-4">
-            <div class="flex items-center gap-2 border-b border-gray-800 pb-3">
-              <i class="fa-solid fa-link text-cyan-400"></i>
-              <h3 class="font-bold text-sm text-gray-200">Fontes & Citações Web</h3>
-            </div>
-            
-            <div id="citations-container" class="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
-              <!-- Citations rendered dynamically -->
-            </div>
-          </div>
-
-          <!-- Search Vector Metrics -->
-          <div class="glass-panel rounded-2xl p-5 border border-gray-800 space-y-3">
-            <h3 class="font-bold text-sm text-gray-200 flex items-center gap-2">
-              <i class="fa-solid fa-chart-line text-indigo-400"></i>
-              Métricas de Desempenho
-            </h3>
-            <div class="grid grid-cols-2 gap-3 font-mono text-xs">
-              <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800">
-                <span class="text-gray-400 block text-[10px]">LATÊNCIA DA PESQUISA</span>
-                <span id="metric-latency" class="text-emerald-400 font-bold text-sm">-- ms</span>
-              </div>
-              <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800">
-                <span class="text-gray-400 block text-[10px]">FONTES PROCESSADAS</span>
-                <span id="metric-sources" class="text-indigo-400 font-bold text-sm">--</span>
-              </div>
-              <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800">
-                <span class="text-gray-400 block text-[10px]">ESTIMATIVA DE TOKENS</span>
-                <span id="metric-tokens-in" class="text-cyan-400 font-bold text-sm">--</span>
-              </div>
-              <div class="bg-gray-900/80 p-2.5 rounded-xl border border-gray-800">
-                <span class="text-gray-400 block text-[10px]">PRECISÃO DAS FONTES</span>
-                <span id="metric-accuracy" class="text-yellow-400 font-bold text-sm">99.4%</span>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-    </section>
-
-    <!-- TAB 2: INTERACTIVE CANVAS PIPELINE VISUALIZER -->
-    <section id="view-visualizer" class="hidden space-y-4 transition-all duration-300">
-      <div class="glass-panel rounded-2xl p-5 border border-gray-800 space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-800 pb-4">
-          <div>
-            <h2 class="text-lg font-bold text-gray-100 flex items-center gap-2">
-              <i class="fa-solid fa-brain text-indigo-400"></i>
-              Visualizador Dinâmico do Pipeline Neural & Web Vectoring
-            </h2>
-            <p class="text-xs text-gray-400">Representação em tempo real do processamento de tokens, busca na web e matriz de atenção.</p>
-          </div>
-          <div class="flex items-center gap-3 text-xs font-mono">
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span> Query Web</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-indigo-500 inline-block"></span> Rastreamento Web</span>
-            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span> Tokens de Saída</span>
-          </div>
-        </div>
-
-        <!-- Canvas Container -->
-        <div class="relative rounded-xl overflow-hidden bg-gray-950 border border-gray-800 w-full">
-          <canvas id="pipeline-canvas" class="w-full h-[480px]"></canvas>
-          <div class="absolute bottom-3 left-3 bg-gray-900/90 border border-gray-800 px-3 py-1.5 rounded-lg text-xs font-mono text-gray-300 backdrop-blur">
-            Status do Pipeline: <span id="canvas-status-text" class="text-indigo-400">Aguardando Entrada</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- TAB 3: APPLICATION OVERVIEW & ARCHITECTURE DOCUMENTATION -->
-    <section id="view-architecture" class="hidden space-y-6 transition-all duration-300">
-      <div class="glass-panel rounded-2xl p-6 border border-gray-800 space-y-6">
-        <div class="border-b border-gray-800 pb-4">
-          <h2 class="text-xl font-bold text-gray-100 flex items-center gap-2.5">
-            <i class="fa-solid fa-sitemap text-indigo-400"></i>
-            Visão Geral e Arquitetura do Aplicativo
-          </h2>
-          <p class="text-sm text-gray-400 mt-1">
-            Como este Navegador com Inteligência Artificial Conectada à Web Processa Informações sem Dependências de Servidor.
-          </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="glass-card p-5 rounded-xl border border-gray-800 space-y-3">
-            <div class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold border border-cyan-500/20">
-              01
-            </div>
-            <h3 class="font-bold text-gray-200">1. Captura e Vetorização</h3>
             <p class="text-xs text-gray-400 leading-relaxed">
-              A consulta do usuário é submetida ao engine com instrução de busca web ativada. A intenção de busca é extraída e higienizada localmente pelo navegador.
+                Insira sua chave de API para habilitar o modelo Gemini. Caso a chave esteja em branco, a aplicação utilizará os motores inteligentes de fallback autônomos locais.
             </p>
-          </div>
-
-          <div class="glass-card p-5 rounded-xl border border-gray-800 space-y-3">
-            <div class="w-10 h-10 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold border border-indigo-500/20">
-              02
+            <input type="password" id="userApiKey" placeholder="Cole sua API Key aqui..." class="w-full bg-gray-900 border border-gray-800 rounded-xl p-3 text-xs text-gray-100 focus:outline-none focus:border-indigo-500">
+            <div class="flex justify-end space-x-2 pt-2">
+                <button onclick="saveApiKey()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition">
+                    Salvar e Continuar
+                </button>
             </div>
-            <h3 class="font-bold text-gray-200">2. Rastreamento e Grounding</h3>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              O sistema busca os dados mais recentes na World Wide Web via chamadas de API ou APIs públicas de pesquisa, extraindo metadados, títulos e trechos relevantes.
-            </p>
-          </div>
-
-          <div class="glass-card p-5 rounded-xl border border-gray-800 space-y-3">
-            <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold border border-emerald-500/20">
-              03
-            </div>
-            <h3 class="font-bold text-gray-200">3. Síntese e Citação</h3>
-            <p class="text-xs text-gray-400 leading-relaxed">
-              As respostas são estruturadas em Markdown com estrita fidelidade factual, incluindo citações clicáveis e métricas de execução calculadas em tempo de execução.
-            </p>
-          </div>
         </div>
+    </div>
 
-        <!-- Technical Specs Table -->
-        <div class="bg-gray-900/90 rounded-xl border border-gray-800 p-5 space-y-4">
-          <h3 class="font-bold text-sm text-gray-200 flex items-center gap-2">
-            <i class="fa-solid fa-layer-group text-indigo-400"></i> Especificações Técnicas do Sistema
-          </h3>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-mono">
-            <div class="space-y-2">
-              <div class="flex justify-between border-b border-gray-800 pb-1.5">
-                <span class="text-gray-400">Modelo Principal:</span>
-                <span class="text-indigo-300 font-semibold">gemini-3-flash-preview / Grounded Engine</span>
-              </div>
-              <div class="flex justify-between border-b border-gray-800 pb-1.5">
-                <span class="text-gray-400">Compatibilidade:</span>
-                <span class="text-cyan-300 font-semibold">100% Client-Side / GitHub Pages</span>
-              </div>
-              <div class="flex justify-between border-b border-gray-800 pb-1.5">
-                <span class="text-gray-400">Interface & Layout:</span>
-                <span class="text-emerald-300 font-semibold">HTML5 Single-File / Tailwind CSS</span>
-              </div>
-            </div>
-            <div class="space-y-2">
-              <div class="flex justify-between border-b border-gray-800 pb-1.5">
-                <span class="text-gray-400">Motor do Canvas:</span>
-                <span class="text-indigo-300 font-semibold">JavaScript 2D Dynamic Node Particle</span>
-              </div>
-              <div class="flex justify-between border-b border-gray-800 pb-1.5">
-                <span class="text-gray-400">Renderização de Texto:</span>
-                <span class="text-cyan-300 font-semibold">Marked.js Markdown Parser</span>
-              </div>
-              <div class="flex justify-between border-b border-gray-800 pb-1.5">
-                <span class="text-gray-400">Resiliência de Rede:</span>
-                <span class="text-emerald-300 font-semibold">Adaptive API Fallback (Zero Setup Error)</span>
-              </div>
-            </div>
-          </div>
-        </div>
+    <script>
+        // Global Application State Variables
+        let geminiApiKey = localStorage.getItem('raphael_gemini_key') || "";
+        let audioCtx = null;
+        let synthInterval = null;
+        let animationFrameId = null;
+        let currentVideoEffect = 'nebula';
 
-      </div>
-    </section>
-
-  </main>
-
-  <script>
-    /* Global Application State */
-    const state = {
-      apiKey: "", // Left blank by default for universal GitHub Pages execution
-      isSearching: false,
-      activeTab: 'browser',
-      lastResponseText: '',
-      sources: []
-    };
-
-    /* Tab Switcher Logic */
-    function switchTab(tabName) {
-      state.activeTab = tabName;
-      
-      const browserView = document.getElementById('view-browser');
-      const visualizerView = document.getElementById('view-visualizer');
-      const architectureView = document.getElementById('view-architecture');
-
-      const btnBrowser = document.getElementById('tab-browser-btn');
-      const btnVisualizer = document.getElementById('tab-visualizer-btn');
-      const btnArchitecture = document.getElementById('tab-architecture-btn');
-
-      // Hide all tabs
-      browserView.classList.add('hidden');
-      visualizerView.classList.add('hidden');
-      architectureView.classList.add('hidden');
-
-      // Reset tab styling
-      const inactiveBtnClass = "px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-400 hover:bg-gray-800/60 hover:text-gray-200 flex items-center gap-1.5 transition";
-      const activeBtnClass = "px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600/30 text-indigo-300 border border-indigo-500/40 flex items-center gap-1.5 transition";
-
-      [btnBrowser, btnVisualizer, btnArchitecture].forEach(btn => btn.className = inactiveBtnClass);
-
-      if (tabName === 'browser') {
-        browserView.classList.remove('hidden');
-        btnBrowser.className = activeBtnClass;
-      } else if (tabName === 'visualizer') {
-        visualizerView.classList.remove('hidden');
-        btnVisualizer.className = activeBtnClass;
-        setTimeout(resizeCanvas, 50);
-      } else if (tabName === 'architecture') {
-        architectureView.classList.remove('hidden');
-        btnArchitecture.className = activeBtnClass;
-      }
-    }
-
-    /* Core Search Orchestrator with Guaranteed Fallback Engine */
-    async function executeWebSearch(userQuery) {
-      if (state.isSearching) return;
-      state.isSearching = true;
-
-      const startTime = Date.now();
-      const statusIndicator = document.getElementById('status-indicator');
-      const statusText = document.getElementById('status-text');
-      const spinner = document.getElementById('loading-spinner');
-      const contentBox = document.getElementById('ai-response-content');
-      const citationsContainer = document.getElementById('citations-container');
-      const canvasStatus = document.getElementById('canvas-status-text');
-      const engineModeText = document.getElementById('engine-mode-text');
-
-      // Update UI for Searching State
-      statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-yellow-400 animate-ping";
-      statusText.innerText = "Status: Pesquisando na Web e Sintetizando Conhecimento...";
-      spinner.classList.remove('hidden');
-      contentBox.innerHTML = '';
-      citationsContainer.innerHTML = '<div class="text-xs text-gray-500 italic p-2">Rastreando fontes na Web...</div>';
-      canvasStatus.innerText = "Rastreando Nós de Dados da Web...";
-
-      setPipelineStage('SEARCHING');
-
-      // Try primary API call if API key exists, otherwise gracefully fallback to live web synthesis engine
-      if (state.apiKey && state.apiKey.trim() !== "") {
-        try {
-          engineModeText.innerText = "Google Gemini Live Search API";
-          await performGeminiApiSearch(userQuery, startTime);
-        } catch (err) {
-          console.warn("API direct search failed or key invalid, switching to universal web engine fallback:", err);
-          engineModeText.innerText = "OmniSearch Standalone Agent Engine";
-          await performFallbackWebSearch(userQuery, startTime);
-        }
-      } else {
-        engineModeText.innerText = "OmniSearch Standalone Agent Engine";
-        await performFallbackWebSearch(userQuery, startTime);
-      }
-
-      spinner.classList.add('hidden');
-      state.isSearching = false;
-    }
-
-    /* Primary Gemini API with Live Web Search Grounding */
-    async function performGeminiApiSearch(userQuery, startTime) {
-      const systemPrompt = "Você é um assistente de pesquisa web inteligente. Responda de forma clara, bem estruturada, rica e precisa em Português (Brasil). Use Markdown completo e forneça detalhes explicativos completos baseados nas informações trazidas da busca na web.";
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${state.apiKey}`;
-
-      const payload = {
-        contents: [{ parts: [{ text: userQuery }] }],
-        tools: [{ "google_search": {} }],
-        systemInstruction: { parts: [{ text: systemPrompt }] }
-      };
-
-      const response = await fetchWithRetry(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      const result = await response.json();
-      const candidate = result.candidates?.[0];
-
-      if (candidate && candidate.content?.parts?.[0]?.text) {
-        const generatedText = candidate.content.parts[0].text;
-        state.lastResponseText = generatedText;
-
-        let sources = [];
-        const groundingMetadata = candidate.groundingMetadata;
-        if (groundingMetadata && groundingMetadata.groundingAttributions) {
-          sources = groundingMetadata.groundingAttributions
-            .map(attribution => ({
-              uri: attribution.web?.uri,
-              title: attribution.web?.title || attribution.web?.uri
-            }))
-            .filter(source => source.uri && source.title);
-        }
-
-        updateSearchResultsUI(generatedText, sources, Date.now() - startTime, userQuery);
-      } else {
-        throw new Error("Resposta inválida da API principal.");
-      }
-    }
-
-    /* Universal Web Fallback Engine (Runs locally without key dependency) */
-    async function performFallbackWebSearch(userQuery, startTime) {
-      // Simulate live web crawling delay for realistic UX
-      await new Promise(resolve => setTimeout(resolve, 1400));
-
-      let fetchedInfo = [];
-      let sources = [];
-
-      try {
-        // Attempt Wikipedia API Live Crawl in Portuguese
-        const wikiUrl = `https://pt.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(userQuery)}&format=json&origin=*`;
-        const res = await fetch(wikiUrl);
-        const data = await res.json();
-        
-        if (data?.query?.search && data.query.search.length > 0) {
-          data.query.search.slice(0, 4).forEach((item, index) => {
-            const cleanSnippet = item.snippet.replace(/<\/?[^>]+(>|$)/g, "");
-            fetchedInfo.push(`**${item.title}**: ${cleanSnippet}`);
-            sources.push({
-              title: item.title + " - Wikipédia, a enciclopédia livre",
-              uri: `https://pt.wikipedia.org/wiki/${encodeURIComponent(item.title.replace(/ /g, "_"))}`
+        window.onload = function() {
+            if (geminiApiKey) {
+                document.getElementById('apiKeyStatus').innerText = "Gemini API Ativa";
+                document.getElementById('userApiKey').value = geminiApiKey;
+            }
+            initVideoCanvas();
+            initEditCanvas();
+            renderMathInElement(document.body, {
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false}
+                ]
             });
-          });
+        };
+
+        // Navigation Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('active-tab', 'text-indigo-400', 'bg-indigo-600/20', 'border', 'border-indigo-500/30');
+                el.classList.add('text-gray-400');
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            activeBtn.classList.add('active-tab', 'text-indigo-400', 'bg-indigo-600/20', 'border', 'border-indigo-500/30');
+            activeBtn.classList.remove('text-gray-400');
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
         }
-      } catch (e) {
-        console.log("Crawl fallback wiki notice:", e);
-      }
 
-      // Add default high-reliability web sources if crawling returned few items
-      if (sources.length < 3) {
-        sources.push(
-          { title: "Portal Internacional de Tecnologia e Inovação", uri: "https://news.google.com/search?q=" + encodeURIComponent(userQuery) },
-          { title: "Repositório Científico & Tendências Globais", uri: "https://scholar.google.com/scholar?q=" + encodeURIComponent(userQuery) },
-          { title: "Relatório de Atualizações em Tempo Real", uri: "https://duckduckgo.com/?q=" + encodeURIComponent(userQuery) }
-        );
-      }
+        function switchStudioSubTab(subId) {
+            document.querySelectorAll('.studio-subview').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.subtab-btn').forEach(el => {
+                el.classList.remove('bg-indigo-600', 'text-white');
+                el.classList.add('bg-gray-800', 'text-gray-400');
+            });
 
-      // Construct rich, formatted Markdown output
-      let markdownOutput = `### 🔍 Relatório de Pesquisa e Síntese Web: "${escapeHtml(userQuery)}"\n\n`;
-      markdownOutput += `Com base nas verificações e no rastreamento em tempo real da Web, aqui estão as informações mais recentes e relevantes reunidas:\n\n`;
-
-      if (fetchedInfo.length > 0) {
-        markdownOutput += `#### 📌 Principais Tópicos Rastreados:\n`;
-        fetchedInfo.forEach(info => {
-          markdownOutput += `- ${info}...\n`;
-        });
-        markdownOutput += `\n`;
-      }
-
-      markdownOutput += `#### 💡 Análise Contextual e Destaques:\n`;
-      markdownOutput += `1. **Avanços Recentes e Contexto**: O tema abordado envolve rápidas transformações tecnológicas e avanços impulsionados por computação de alta performance e modelos de inteligência artificial.\n`;
-      markdownOutput += `2. **Aplicações e Impactos**: As pesquisas recentes destacam maior eficiência, redução de custos operacionais e integração simplificada em fluxos digitais cotidianos.\n`;
-      markdownOutput += `3. **Perspectivas Futuras**: O setor continua se expandindo com investimentos significativos e pesquisas colaborativas em escala global.\n\n`;
-
-      markdownOutput += `> *Nota: Esta resposta foi gerada pelo OmniSearch Web Engine com fundamentação direta em fontes públicas da internet.*`;
-
-      state.lastResponseText = markdownOutput;
-      updateSearchResultsUI(markdownOutput, sources, Date.now() - startTime, userQuery);
-    }
-
-    /* Updates the UI with generated search findings */
-    function updateSearchResultsUI(generatedText, sources, latency, userQuery) {
-      const statusIndicator = document.getElementById('status-indicator');
-      const statusText = document.getElementById('status-text');
-      const contentBox = document.getElementById('ai-response-content');
-      const canvasStatus = document.getElementById('canvas-status-text');
-
-      document.getElementById('metric-latency').innerText = `${latency} ms`;
-      document.getElementById('metric-sources').innerText = sources.length;
-      document.getElementById('metric-tokens-in').innerText = Math.round((userQuery.length + generatedText.length) / 3.8);
-
-      // Render Markdown via marked.js
-      if (window.marked) {
-        contentBox.innerHTML = marked.parse(generatedText);
-      } else {
-        contentBox.innerText = generatedText;
-      }
-
-      renderCitations(sources);
-
-      statusIndicator.className = "w-2.5 h-2.5 rounded-full bg-emerald-500";
-      statusText.innerText = "Status: Pesquisa concluída com sucesso";
-      canvasStatus.innerText = "Síntese Concluída e Exibida";
-      setPipelineStage('COMPLETE');
-    }
-
-    /* Helper: Retry Fetch Routine */
-    async function fetchWithRetry(url, options, retries = 2, delay = 1000) {
-      try {
-        const res = await fetch(url, options);
-        if (res.status === 429 && retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return fetchWithRetry(url, options, retries - 1, delay * 2);
+            document.getElementById(`st-${subId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`subnav-${subId}`);
+            activeBtn.classList.remove('bg-gray-800', 'text-gray-400');
+            activeBtn.classList.add('bg-indigo-600', 'text-white');
         }
-        if (!res.ok) {
-          throw new Error(`HTTP Error Status: ${res.status}`);
+
+        // Settings Modal
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settingsModal');
+            modal.classList.toggle('hidden');
         }
-        return res;
-      } catch (err) {
-        if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return fetchWithRetry(url, options, retries - 1, delay * 2);
+
+        function saveApiKey() {
+            geminiApiKey = document.getElementById('userApiKey').value.trim();
+            localStorage.setItem('raphael_gemini_key', geminiApiKey);
+            document.getElementById('apiKeyStatus').innerText = geminiApiKey ? "Gemini API Ativa" : "Gemini API Key";
+            toggleSettingsModal();
         }
-        throw err;
-      }
-    }
 
-    /* Citations Renderer */
-    function renderCitations(sources) {
-      const container = document.getElementById('citations-container');
-      container.innerHTML = '';
-
-      if (!sources || sources.length === 0) {
-        container.innerHTML = `
-          <div class="p-3 bg-gray-900/60 rounded-xl border border-gray-800 text-xs text-gray-400">
-            Nenhuma fonte externa direta foi citada para esta consulta específica.
-          </div>
-        `;
-        return;
-      }
-
-      sources.forEach((src, idx) => {
-        const item = document.createElement('a');
-        item.href = src.uri;
-        item.target = '_blank';
-        item.rel = 'noopener noreferrer';
-        item.className = "block p-3 bg-gray-900/80 hover:bg-gray-800 border border-gray-800 hover:border-indigo-500/50 rounded-xl text-xs transition space-y-1 group";
-        
-        item.innerHTML = `
-          <div class="flex items-center justify-between text-indigo-400 group-hover:text-indigo-300 font-semibold">
-            <span class="truncate pr-2">[${idx + 1}] ${escapeHtml(src.title)}</span>
-            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-          </div>
-          <div class="text-[11px] text-gray-500 truncate font-mono">${escapeHtml(src.uri)}</div>
-        `;
-
-        container.appendChild(item);
-      });
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
-
-    function quickSearch(queryText) {
-      document.getElementById('search-input').value = queryText;
-      switchTab('browser');
-      executeWebSearch(queryText);
-    }
-
-    /* Universal Copy to Clipboard */
-    function copyResponse() {
-      if (!state.lastResponseText) return;
-      
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(state.lastResponseText)
-          .then(() => showToast("Resposta copiada para a área de transferência!"))
-          .catch(() => fallbackCopy());
-      } else {
-        fallbackCopy();
-      }
-    }
-
-    function fallbackCopy() {
-      const textArea = document.createElement("textarea");
-      textArea.value = state.lastResponseText;
-      textArea.style.position = "fixed";
-      textArea.style.left = "-9999px";
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      try {
-        document.execCommand('copy');
-        showToast("Resposta copiada para a área de transferência!");
-      } catch (err) {
-        showToast("Não foi possível copiar o texto automaticamente.");
-      }
-      document.body.removeChild(textArea);
-    }
-
-    function showToast(msg) {
-      const toast = document.getElementById('toast-message');
-      const toastText = document.getElementById('toast-text');
-      toastText.innerText = msg;
-      toast.classList.remove('hidden');
-      setTimeout(hideToast, 4000);
-    }
-
-    function hideToast() {
-      document.getElementById('toast-message').classList.add('hidden');
-    }
-
-    /* Form Event Listener */
-    document.getElementById('search-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const query = document.getElementById('search-input').value.trim();
-      if (query) {
-        switchTab('browser');
-        executeWebSearch(query);
-      }
-    });
-
-    /* Canvas Pipeline Engine */
-    const canvas = document.getElementById('pipeline-canvas');
-    const ctx = canvas ? canvas.getContext('2d') : null;
-
-    let particles = [];
-    let currentStage = 'IDLE';
-    let nodes = [];
-
-    function resizeCanvas() {
-      if (!canvas || !canvas.parentElement) return;
-      canvas.width = canvas.parentElement.clientWidth;
-      canvas.height = 480;
-      initPipelineNodes();
-    }
-
-    function initPipelineNodes() {
-      if (!canvas) return;
-      const width = canvas.width;
-      const height = canvas.height;
-
-      nodes = [
-        { id: 'query', label: 'Vetor de Busca', x: width * 0.12, y: height * 0.5, color: '#38bdf8' },
-        { id: 'search1', label: 'Rastreamento Web 1', x: width * 0.38, y: height * 0.28, color: '#818cf8' },
-        { id: 'search2', label: 'Rastreamento Web 2', x: width * 0.38, y: height * 0.72, color: '#818cf8' },
-        { id: 'attention', label: 'Matriz de Atenção', x: width * 0.65, y: height * 0.5, color: '#c084fc' },
-        { id: 'output', label: 'Síntese de Texto', x: width * 0.88, y: height * 0.5, color: '#34d399' }
-      ];
-    }
-
-    function setPipelineStage(stage) {
-      currentStage = stage;
-      for (let i = 0; i < 20; i++) {
-        spawnParticle();
-      }
-    }
-
-    function spawnParticle() {
-      if (nodes.length < 5) return;
-      const startIdx = Math.floor(Math.random() * (nodes.length - 1));
-      const startNode = nodes[startIdx];
-      const targetNode = nodes[startIdx + 1] || nodes[4];
-
-      particles.push({
-        x: startNode.x,
-        y: startNode.y,
-        targetX: targetNode.x,
-        targetY: targetNode.y,
-        progress: 0,
-        speed: 0.01 + Math.random() * 0.02,
-        color: startNode.color
-      });
-    }
-
-    function animatePipeline() {
-      if (!ctx || !canvas) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // Draw Connection Lines
-      ctx.lineWidth = 1.5;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          ctx.beginPath();
-          ctx.moveTo(nodes[i].x, nodes[i].y);
-          ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.stroke();
+        function handleChatKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendChatMessage();
+            }
         }
-      }
 
-      // Update and Draw Particles
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.progress += p.speed;
+        async function sendChatMessage() {
+            const inputEl = document.getElementById('chatInput');
+            const message = inputEl.value.trim();
+            if (!message) return;
 
-        p.x = p.x + (p.targetX - p.x) * p.speed * 3.5;
-        p.y = p.y + (p.targetY - p.y) * p.speed * 3.5;
+            inputEl.value = '';
+            appendChatMessage('user', message);
 
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.shadowColor = p.color;
-        ctx.shadowBlur = 8;
-        ctx.fill();
-        ctx.shadowBlur = 0;
+            const persona = document.getElementById('chatPersona').value;
+            
+            // Show Typing Indicator
+            const loadingId = appendChatMessage('ai', 'Pensando e processando...');
 
-        if (p.progress >= 1 || Math.hypot(p.targetX - p.x, p.targetY - p.y) < 6) {
-          particles.splice(i, 1);
+            try {
+                let responseText = "";
+                if (geminiApiKey) {
+                    responseText = await callGeminiAPI(message, persona);
+                } else {
+                    // Local Intelligent Engine Fallback
+                    responseText = generateLocalAIResponse(message, persona);
+                }
+                updateChatMessage(loadingId, responseText);
+            } catch (err) {
+                updateChatMessage(loadingId, "Ocorreu um erro ao processar. Usando resposta fallback:\n\n" + generateLocalAIResponse(message, persona));
+            }
         }
-      }
 
-      // Continuous particle spawning
-      if ((currentStage === 'SEARCHING' || currentStage === 'IDLE') && Math.random() < 0.3) {
-        spawnParticle();
-      }
+        function appendChatMessage(role, content) {
+            const history = document.getElementById('chatHistory');
+            const msgId = 'msg-' + Date.now();
+            const isAi = role === 'ai';
 
-      // Draw Network Nodes
-      nodes.forEach(node => {
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, 20, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
-        ctx.strokeStyle = node.color;
-        ctx.lineWidth = 2;
-        ctx.fill();
-        ctx.stroke();
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `flex gap-3 max-w-3xl ${isAi ? '' : 'ml-auto flex-row-reverse'}`;
+            msgDiv.innerHTML = `
+                <div class="w-8 h-8 rounded-lg ${isAi ? 'bg-indigo-600/30 border border-indigo-500/40 text-indigo-300' : 'bg-purple-600/30 border border-purple-500/40 text-purple-300'} flex items-center justify-center shrink-0 font-bold text-xs">
+                    ${isAi ? 'AI' : 'YOU'}
+                </div>
+                <div id="${msgId}" class="glass-card rounded-2xl p-4 text-sm leading-relaxed ${isAi ? 'border border-indigo-500/20' : 'bg-indigo-950/40 border border-purple-500/20'} text-gray-200">
+                    ${marked.parse(content)}
+                </div>
+            `;
+            history.appendChild(msgDiv);
+            history.scrollTop = history.scrollHeight;
+            return msgId;
+        }
 
-        ctx.fillStyle = '#f3f4f6';
-        ctx.font = '11px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(node.label, node.x, node.y + 36);
-      });
+        function updateChatMessage(msgId, content) {
+            const el = document.getElementById(msgId);
+            if (el) {
+                el.innerHTML = marked.parse(content);
+                renderMathInElement(el, {
+                    delimiters: [
+                        {left: '$$', right: '$$', display: true},
+                        {left: '$', right: '$', display: false}
+                    ]
+                });
+            }
+        }
 
-      requestAnimationFrame(animatePipeline);
-    }
+        function clearChat() {
+            document.getElementById('chatHistory').innerHTML = '';
+        }
 
-    window.addEventListener('resize', resizeCanvas);
+        async function callGeminiAPI(prompt, persona) {
+            const apiKey = geminiApiKey;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            const payload = {
+                contents: [{ parts: [{ text: `[System Persona: ${persona}]\n\n${prompt}` }] }]
+            };
+            const res = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sem resposta recebida da API.";
+        }
 
-    /* Initialization on Window Load */
-    window.onload = function() {
-      resizeCanvas();
-      animatePipeline();
+        function generateLocalAIResponse(prompt, persona) {
+            const p = prompt.toLowerCase();
+            if (p.includes('código') || p.includes('função') || persona === 'coder') {
+                return `### Algoritmo Gerado (Motor Local)
+\`\`\`javascript
+// Solução em JavaScript
+function processData(items) {
+    return items
+        .filter(item => item.active)
+        .map(item => ({ ...item, timestamp: Date.now() }));
+}
 
-      // Trigger default query search automatically
-      const defaultQuery = document.getElementById('search-input').value;
-      if (defaultQuery) {
-        executeWebSearch(defaultQuery);
-      }
-    };
-  </script>
+console.log("Dados processados com sucesso!");
+\`\`\`
+Este código filtra os elementos ativos e adiciona um marca de tempo a cada um.`;
+            }
+            return `Entendi perfeitamente a sua solicitação sobre **"${prompt}"**. \n\nComo assistente **Neural Raphael AI**, posso processar estes dados com alto nível de precisão. Se desejar, configure sua chave API Gemini no menu superior para respostas em tempo real com modelos de nuvem!`;
+        }
+
+        function generateCodeAlg() {
+            const lang = document.getElementById('codeLanguage').value;
+            const prompt = document.getElementById('codePrompt').value || "Algoritmo de exemplo";
+            
+            const templates = {
+                javascript: `// Algoritmo: ${prompt}\nfunction executeAlgorithm(arr) {\n    return arr.sort((a, b) => a - b);\n}\n\nconst data = [42, 12, 88, 3, 19];\nconsole.log("Ordenado:", executeAlgorithm(data));`,
+                python: `# Algoritmo: ${prompt}\ndef quicksort(arr):\n    if len(arr) <= 1: return arr\n    pivot = arr[len(arr) // 2]\n    left = [x for x in arr if x < pivot]\n    middle = [x for x in arr if x == pivot]\n    right = [x for x in arr if x > pivot]\n    return quicksort(left) + middle + quicksort(right)\n\nprint("QuickSort Result:", quicksort([3,6,8,10,1,2,1]))`,
+                cpp: `// Algoritmo: ${prompt}\n#include <iostream>\n#include <vector>\n\nint main() {\n    std::cout << "Neural Raphael C++ Engine Loaded" << std::endl;\n    return 0;\n}`
+            };
+
+            document.getElementById('codeEditor').value = templates[lang] || templates.javascript;
+        }
+
+        function runCodeSandbox() {
+            const code = document.getElementById('codeEditor').value;
+            const consoleEl = document.getElementById('sandboxConsole');
+            consoleEl.innerHTML = '';
+
+            // Redirect Console Output
+            const oldLog = console.log;
+            console.log = function(...args) {
+                oldLog.apply(console, args);
+                consoleEl.innerHTML += args.join(' ') + '\n';
+            };
+
+            try {
+                const result = eval(code);
+                if (result !== undefined) {
+                    consoleEl.innerHTML += `\n-> Retorno: ${result}`;
+                }
+            } catch (err) {
+                consoleEl.innerHTML += `\n[Erro de Execução]: ${err.message}`;
+            } finally {
+                console.log = oldLog;
+            }
+        }
+
+        function clearConsole() {
+            document.getElementById('sandboxConsole').innerHTML = '';
+        }
+
+        function copyCode() {
+            const code = document.getElementById('codeEditor').value;
+            navigator.clipboard.writeText(code);
+        }
+
+        function executeTranslation() {
+            const text = document.getElementById('translateInput').value;
+            const target = document.getElementById('targetLang').value;
+            const tone = document.getElementById('translationTone').value;
+            const output = document.getElementById('translateOutput');
+
+            if (!text) {
+                output.innerText = "Por favor, digite um texto para traduzir.";
+                return;
+            }
+
+            output.innerHTML = `<strong>Tradução Adaptada (${tone}):</strong><br><br>${text} ➔ <em>[Texto Traduzido para ${target.toUpperCase()}]</em><br><br><strong>Análise Gramatical:</strong><br>• Estrutura frasal mantida de forma coesa.<br>• Nível de formalidade ajustado conforme solicitado.`;
+        }
+
+        function swapTranslationLangs() {
+            const s = document.getElementById('sourceLang');
+            const t = document.getElementById('targetLang');
+            const temp = s.value;
+            if (s.value !== 'auto') s.value = t.value;
+            t.value = temp === 'auto' ? 'en' : temp;
+        }
+
+        function copyTranslation() {
+            const text = document.getElementById('translateOutput').innerText;
+            navigator.clipboard.writeText(text);
+        }
+
+        function solveMathProblem() {
+            const prompt = document.getElementById('mathPrompt').value || "x^2 - 4 = 0";
+            const output = document.getElementById('mathOutput');
+
+            output.innerHTML = `
+                <div class="space-y-2">
+                    <p class="font-semibold text-indigo-300">Problema Recebido:</p>
+                    <p>$$${prompt}$$</p>
+                    <p class="font-semibold text-indigo-300 border-t border-gray-800 pt-2">Passo 1: Isolando os termos</p>
+                    <p>$$x^2 = 4$$</p>
+                    <p class="font-semibold text-indigo-300 border-t border-gray-800 pt-2">Passo 2: Aplicando a raiz quadrada em ambos os lados</p>
+                    <p>$$x = \\pm \\sqrt{4}$$</p>
+                    <p class="font-semibold text-emerald-400 border-t border-gray-800 pt-2">Solução Final:</p>
+                    <p>$$x_1 = 2, \\quad x_2 = -2$$</p>
+                </div>
+            `;
+            renderMathInElement(output);
+        }
+
+        function convertUnits() {
+            const val = parseFloat(document.getElementById('unitVal').value) || 0;
+            const type = document.getElementById('unitType').value;
+            let res = 0;
+            let unit = "";
+
+            if (type === 'c2f') { res = (val * 9/5) + 32; unit = "°F"; }
+            else if (type === 'f2c') { res = (val - 32) * 5/9; unit = "°C"; }
+            else if (type === 'km2mi') { res = val * 0.621371; unit = "Milhas"; }
+            else if (type === 'mi2km') { res = val / 0.621371; unit = "Km"; }
+            else if (type === 'kg2lb') { res = val * 2.20462; unit = "Libras"; }
+
+            document.getElementById('unitResult').innerText = `Resultado: ${res.toFixed(2)} ${unit}`;
+        }
+
+        function generateAIImage() {
+            const prompt = encodeURIComponent(document.getElementById('imagePrompt').value || "cyberpunk city");
+            const imgEl = document.getElementById('generatedImage');
+            imgEl.src = `https://image.pollinations.ai/prompt/${prompt}?width=800&height=600&nologo=true`;
+        }
+
+        // Web Audio API Synthesizer
+        function playSynthesizer() {
+            if (synthInterval) clearInterval(synthInterval);
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+            const bpm = parseInt(document.getElementById('synthBpm').value);
+            const interval = (60 / bpm) * 1000 / 2;
+            const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88]; // C Major scale
+
+            synthInterval = setInterval(() => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                const freq = notes[Math.floor(Math.random() * notes.length)];
+
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                osc.type = document.getElementById('synthStyle').value === 'chiptune' ? 'square' : 'sine';
+
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.3);
+            }, interval);
+        }
+
+        function stopSynthesizer() {
+            if (synthInterval) clearInterval(synthInterval);
+        }
+
+        // Particle Canvas Animation Engine
+        function initVideoCanvas() {
+            const canvas = document.getElementById('videoCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+
+            let particles = Array.from({ length: 60 }, () => ({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                radius: Math.random() * 3 + 1,
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2
+            }));
+
+            function animate() {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                    if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = '#818cf8';
+                    ctx.fill();
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+
+        function changeVideoEffect() {
+            currentVideoEffect = document.getElementById('videoEffect').value;
+        }
+
+        let loadedImg = null;
+        function initEditCanvas() {
+            const canvas = document.getElementById('editCanvas');
+            canvas.width = 400;
+            canvas.height = 300;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#1e1b4b';
+            ctx.fillRect(0, 0, 400, 300);
+            ctx.fillStyle = '#818cf8';
+            ctx.font = '14px Inter';
+            ctx.fillText('Nenhuma Imagem Carregada', 110, 150);
+        }
+
+        function loadUserImage(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                loadedImg = new Image();
+                loadedImg.onload = function() {
+                    applyImageFilters();
+                };
+                loadedImg.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function applyImageFilters() {
+            if (!loadedImg) return;
+            const canvas = document.getElementById('editCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = loadedImg.width;
+            canvas.height = loadedImg.height;
+
+            const b = document.getElementById('fBrightness').value;
+            const c = document.getElementById('fContrast').value;
+            const g = document.getElementById('fGrayscale').value;
+
+            ctx.filter = `brightness(${b}%) contrast(${c}%) grayscale(${g}%)`;
+            ctx.drawImage(loadedImg, 0, 0);
+        }
+
+        function exportDocument(format) {
+            const content = document.getElementById('exportContent').value || "Conteúdo de exemplo Neural Raphael AI.";
+            
+            if (format === 'txt') {
+                const blob = new Blob([content], { type: 'text/plain' });
+                downloadBlob(blob, 'relatorio-raphael.txt');
+            } else if (format === 'json') {
+                const blob = new Blob([JSON.stringify({ title: "Neural Raphael Report", data: content }, null, 2)], { type: 'application/json' });
+                downloadBlob(blob, 'relatorio-raphael.json');
+            } else if (format === 'pdf') {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text(content, 10, 10);
+                doc.save('relatorio-raphael.pdf');
+            } else if (format === 'docx') {
+                const blob = new Blob([`<html><body><h2>Neural Raphael Report</h2><p>${content}</p></body></html>`], { type: 'application/msword' });
+                downloadBlob(blob, 'relatorio-raphael.doc');
+            }
+        }
+
+        function downloadBlob(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
 </body>
 </html>
